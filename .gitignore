@@ -1,0 +1,6 @@
+venv/
+*.~vsd
+*.vsd
+*.bak
+*.png
+*.jpg
