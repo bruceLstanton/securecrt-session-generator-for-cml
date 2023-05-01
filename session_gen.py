@@ -61,17 +61,11 @@ def get_config_settings():
 
 def validate_settings_get_token(cml_user, cml_pass, cml_server):
     print()
-    ## SET BASE URL VAR ####################################################
-    ########################################################################
+
     # Base URL for future API calls
-
     base_url = "https://" + cml_server + "/api/v0"
-    ########################################################################
 
-    ## REQUEST BEARER TOKEN ################################################
-    ########################################################################
     # Token required to authenticate API calls
-
     api_url_authenticate = base_url + "/authenticate"
 
     payload = json.dumps({
@@ -111,10 +105,10 @@ def validate_settings_get_token(cml_user, cml_pass, cml_server):
     except requests.exceptions.RequestException as err:
         err = str(err).split()
         return(err)
-    #######################################################################
+################################################################################
 
 
-# LAB INFO #####################################################################
+## LAB INFO ####################################################################
 ################################################################################
 
 def get_lab_info(base_url, bearer_token):
@@ -155,14 +149,7 @@ def get_lab_info(base_url, bearer_token):
     lab_info['lab_tiles'] = lab_tiles
 
     return lab_info
-
-    # return(labs, num_of_labs)
-
-    # print(labs[user_specified_lab][3])
-    # print(lab_tiles['8e887c46-8891-45aa-849e-4d42e96cf0e5']['topology']['nodes'])
-    # user_specified_lab = labs[user_specified_lab][3]
-    # print(user_specified_lab)
-    ########################################################################
+################################################################################
 
 
 ## SELECT LAB ##################################################################
@@ -362,6 +349,13 @@ def generate_node_sessions_files(node_session_dir):
         lab_node_definition = lab_node['node_definition']
         if lab_node_definition not in ignore_node_definitions:
             lab_node_label = lab_node['label']
+            lab_node_label_command = lab_node_label
+            for invalid_char in invalid_chars:
+                if invalid_char in lab_node_label:
+                    new_lab_node_label = lab_node_label.replace(
+                        invalid_char, "_").strip()
+                    lab_node_label = new_lab_node_label
+
             node_session_filename = lab_node_label + '.ini'
             node_session_location = node_session_dir + '\\' + node_session_filename
             node_session_file = shutil.copyfile(
@@ -370,9 +364,9 @@ def generate_node_sessions_files(node_session_dir):
             with open(node_session_file, 'r') as f:
                 node_session_data = f.read()
                 node_session_data = node_session_data.replace(
-                    search_cml_node_cmd_lab_title, lab_title)
+                    search_cml_node_cmd_lab_title, lab_title_command)
                 node_session_data = node_session_data.replace(
-                    search_cml_node_cmd_label, lab_node_label)
+                    search_cml_node_cmd_label, lab_node_label_command)
 
             with open(node_session_file, 'w') as f:
                 f.write(node_session_data)
@@ -531,8 +525,7 @@ def setup():
             print("=" * 79)
             return sessions_cml_labs_dir
         except OSError as error:
-            # print("Directory '%s' can not be created" % lab_title)
-            print("Session directory for CML server could not be created")
+            print(f"Directory '{cml_server_dir}' could not be created")
             print("Exiting")
             sys.exit(1)
 
@@ -650,9 +643,18 @@ while running:
 
             lab_selection = lab_selector(labs)
 
+            invalid_chars = ("<", ">", ":", "\"", "\/", "\\", "|", "?", "*")
+
             lab_nodes = lab_info['lab_tiles'][lab_selection]['topology']['nodes']
-            lab_title = lab_info['lab_tiles'][lab_selection]['lab_title'].replace(
-                ":", "")
+            lab_title = lab_info['lab_tiles'][lab_selection]['lab_title']
+            lab_title_command = lab_title
+
+            for invalid_char in invalid_chars:
+                if invalid_char in lab_title:
+                    lab_title_command = lab_title
+                    new_lab_title = lab_title.replace(
+                        invalid_char, "_").strip()
+                    lab_title = new_lab_title
 
             node_session_dir = create_lab_session_dir()
 
