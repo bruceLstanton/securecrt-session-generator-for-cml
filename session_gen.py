@@ -527,8 +527,6 @@ def setup():
             sessions_dir, cml_server_dir)
         try:
             os.makedirs(sessions_cml_labs_dir, exist_ok=True)
-            # print("Directory '%s' created successfully" % lab_title)
-            # print("Session directory created successfully for CML server")
             print(f"Directory '{cml_server_dir}' created successfully")
             print("=" * 79)
             return sessions_cml_labs_dir
