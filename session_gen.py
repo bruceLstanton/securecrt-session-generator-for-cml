@@ -21,6 +21,59 @@ os.system("cls")
 
 requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
+## SECURECRT PATH ##############################################################
+################################################################################
+
+
+def application_installed():
+    # SecureCRT may or may not be in system PATH
+    # This is how to find it whether it is or not
+    program_files_32bit = os.environ.get("PROGRAMW6432")
+    program_files_64bit = os.environ.get("PROGRAMFILES")
+    securecrt_path_32bit = program_files_32bit + "\\VanDyke Software\\SecureCRT\\"
+    securecrt_path_64bit = program_files_64bit + "\\VanDyke Software\\SecureCRT\\"
+    securecrt_file = "SecureCRT.exe"
+    securecrt_exists_32bit = os.path.exists(securecrt_path_32bit + securecrt_file)
+    securecrt_exists_64bit = os.path.exists(securecrt_path_64bit + securecrt_file)
+
+    if securecrt_exists_32bit:
+        securecrt_path = securecrt_path_32bit
+    elif securecrt_exists_64bit:
+        securecrt_path = securecrt_path_64bit
+    else:
+        print(f"{securecrt_file} was not found.")
+        print("Exiting")
+        sys.exit(1)
+
+    return securecrt_path, securecrt_file
+
+
+################################################################################
+
+
+## SECURECRT CONFIG PATH #######################################################
+################################################################################
+
+
+def config_path():
+    application_installed()
+    # Searching Windows registry
+    # If exists, securecrt_dir will be set to seccrt_key[0]
+    path = winreg.HKEY_CURRENT_USER
+    seccrt_location = winreg.OpenKeyEx(path, r"SOFTWARE\\VanDyke\\SecureCRT\\")
+    seccrt_key = winreg.QueryValueEx(seccrt_location, "Config Path")
+
+    if seccrt_location:
+        winreg.CloseKey(seccrt_location)
+        seccrt_key = list(seccrt_key).pop(0)
+        return seccrt_key
+    else:
+        print("SecureCRT configuration path was not found.")
+        print("Exiting")
+        sys.exit(1)
+
+
+################################################################################
 ## GETS CONFIGURATION SETTINGS FOR config.yaml #################################
 ################################################################################
 
@@ -197,61 +250,6 @@ def lab_selector(labs):
 ################################################################################
 
 
-## SECURECRT PATH ##############################################################
-################################################################################
-
-
-def application_installed():
-    # SecureCRT may or may not be in system PATH
-    # This is how to find it whether it is or not
-    program_files_32bit = os.environ.get("PROGRAMW6432")
-    program_files_64bit = os.environ.get("PROGRAMFILES")
-    securecrt_path_32bit = program_files_32bit + "\\VanDyke Software\\SecureCRT\\"
-    securecrt_path_64bit = program_files_64bit + "\\VanDyke Software\\SecureCRT\\"
-    securecrt_file = "SecureCRT.exe"
-    securecrt_exists_32bit = os.path.exists(securecrt_path_32bit + securecrt_file)
-    securecrt_exists_64bit = os.path.exists(securecrt_path_64bit + securecrt_file)
-
-    if securecrt_exists_32bit:
-        securecrt_path = securecrt_path_32bit
-    elif securecrt_exists_64bit:
-        securecrt_path = securecrt_path_64bit
-    else:
-        print(f"{securecrt_file} was not found.")
-        print("Exiting")
-        sys.exit(1)
-
-    return securecrt_path, securecrt_file
-
-
-################################################################################
-
-
-## SECURECRT CONFIG PATH #######################################################
-################################################################################
-
-
-def config_path():
-    application_installed()
-    # Searching Windows registry
-    # If exists, securecrt_dir will be set to seccrt_key[0]
-    path = winreg.HKEY_CURRENT_USER
-    seccrt_location = winreg.OpenKeyEx(path, r"SOFTWARE\\VanDyke\\SecureCRT\\")
-    seccrt_key = winreg.QueryValueEx(seccrt_location, "Config Path")
-
-    if seccrt_location:
-        winreg.CloseKey(seccrt_location)
-        seccrt_key = list(seccrt_key).pop(0)
-        return seccrt_key
-    else:
-        print("SecureCRT configuration path was not found.")
-        print("Exiting")
-        sys.exit(1)
-
-
-################################################################################
-
-
 ## VERIFY INITIAL CONFIG FILE EXISTS ###########################################
 ################################################################################
 
@@ -407,9 +405,8 @@ def generate_node_sessions_files(node_session_dir):
                 f.write(node_session_data)
 
     print()
-    print(f"Generation of node session files for lab '{lab_title}' complete")
-    print("Exiting")
-    print("=" * 79)
+    print(f"Generation of node session files for lab '{lab_title}' complete\n")
+    input("Press Enter to exit\n\n")
 
 
 ################################################################################
