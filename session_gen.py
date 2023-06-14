@@ -28,24 +28,29 @@ requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 def application_installed():
     # SecureCRT may or may not be in system PATH
     # This is how to find it whether it is or not
-    program_files_32bit = os.environ.get("PROGRAMW6432")
-    program_files_64bit = os.environ.get("PROGRAMFILES")
-    securecrt_path_32bit = program_files_32bit + "\\VanDyke Software\\SecureCRT\\"
-    securecrt_path_64bit = program_files_64bit + "\\VanDyke Software\\SecureCRT\\"
+    program_files_32bit = os.environ.get("ProgramFiles(x86)")
+    program_files_64bit = os.environ.get("ProgramW6432")
+    securecrt_dir = "VanDyke Software\\SecureCRT\\"
     securecrt_file = "SecureCRT.exe"
-    securecrt_exists_32bit = os.path.exists(securecrt_path_32bit + securecrt_file)
-    securecrt_exists_64bit = os.path.exists(securecrt_path_64bit + securecrt_file)
+    securecrt_loc_32bit = os.path.join(
+        program_files_32bit, securecrt_dir, securecrt_file
+    )
+    securecrt_loc_64bit = os.path.join(
+        program_files_64bit, securecrt_dir, securecrt_file
+    )
+    securecrt_exists_32bit = os.path.exists(securecrt_loc_32bit)
+    securecrt_exists_64bit = os.path.exists(securecrt_loc_64bit)
 
     if securecrt_exists_32bit:
-        securecrt_path = securecrt_path_32bit
+        securecrt_path = securecrt_loc_32bit
     elif securecrt_exists_64bit:
-        securecrt_path = securecrt_path_64bit
+        securecrt_path = securecrt_loc_64bit
     else:
         print(f"{securecrt_file} was not found.")
         print("Exiting")
         sys.exit(1)
 
-    return securecrt_path, securecrt_file
+    return securecrt_path
 
 
 ################################################################################
@@ -364,8 +369,8 @@ def generate_node_sessions_files(node_session_dir):
     print("=" * 79)
 
     node_session_template_filename = "node_session_template"
-    node_session_template_location = (
-        sessions_cml_labs_dir + "\\" + node_session_template_filename
+    node_session_template_location = os.path.join(
+        sessions_cml_labs_dir, node_session_template_filename
     )
 
     # List of nodes that do not need sessions created because they do not have console access
@@ -387,7 +392,9 @@ def generate_node_sessions_files(node_session_dir):
                     lab_node_label = new_lab_node_label
 
             node_session_filename = lab_node_label + ".ini"
-            node_session_location = node_session_dir + "\\" + node_session_filename
+            node_session_location = os.path.join(
+                node_session_dir, node_session_filename
+            )
             node_session_file = shutil.copyfile(
                 node_session_template_location, node_session_location
             )
@@ -423,13 +430,13 @@ def setup():
     replace_cml_contr_cmd = "quit"
 
     console_session_template_filename = init_console_server_session_file + ".ini"
-    console_session_template_location = (
-        sessions_dir + "\\" + console_session_template_filename
+    console_session_template_location = os.path.join(
+        sessions_dir, console_session_template_filename
     )
 
     node_session_template_filename = "node_session_template"
-    node_session_template_location = (
-        sessions_dir + "\\" + node_session_template_filename
+    node_session_template_location = os.path.join(
+        sessions_dir, node_session_template_filename
     )
 
     print(f"{config_yaml} was not found.\nStarting Setup\n")
@@ -526,7 +533,7 @@ def setup():
             print()
             print("Creating cml_console_server.ini session file.")
 
-            seccrt = securecrt_path + securecrt_file
+            seccrt = securecrt_path
             print("Launching SecureCRT with cml_console_server session")
             cmd = [seccrt, "/T", "/S", "cml_console_server"]
             print()
@@ -579,8 +586,8 @@ def setup():
         replace_cml_node_cmd = "open /CHANGEME_LAB_TITLE/CHANGEME_NODE_LABEL/0"
 
         sessions_cml_labs_dir = create_cml_sessions_dir()
-        node_session_template_location = (
-            sessions_cml_labs_dir + "\\" + node_session_template_filename
+        node_session_template_location = os.path.join(
+            sessions_cml_labs_dir, node_session_template_filename
         )
 
         # Creating node session template file
@@ -638,11 +645,10 @@ def setup():
 running = True
 while running:
     securecrt = application_installed()
-    securecrt_path = securecrt[0]
-    securecrt_file = securecrt[1]
+    securecrt_path = securecrt
 
     config_dir = config_path()
-    sessions_dir = config_dir + "\Sessions"
+    sessions_dir = os.path.join(config_dir, "Sessions")
 
     initial_config_check()
     init_console_server_session_file = "cml_console_server"
@@ -660,7 +666,10 @@ while running:
             cml_pass = cml_configs["cml_pass"]
             cml_server = cml_configs["cml_server"]
 
-            sessions_cml_labs_dir = sessions_dir + "\CML " + cml_server + " Labs"
+            sessions_cml_labs_dir_name = "CML " + cml_server + " Labs"
+            sessions_cml_labs_dir = os.path.join(
+                sessions_dir, sessions_cml_labs_dir_name
+            )
             sessions_cml_labs_dir_exists = os.path.exists(sessions_cml_labs_dir)
 
             if sessions_cml_labs_dir_exists is False:
