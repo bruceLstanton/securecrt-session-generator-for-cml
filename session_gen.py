@@ -117,7 +117,7 @@ def get_config_settings():
 ################################################################################
 
 
-## VALIDATES CONFIGURATION SETTINGS & GET BEARER TOKEN #########################
+## VALIDATE CONFIGURATION SETTINGS & GET BEARER TOKEN ##########################
 ################################################################################
 
 
@@ -220,7 +220,7 @@ def get_lab_info(base_url, bearer_token):
 ################################################################################
 
 
-def lab_selector(labs):
+def lab_selector(labs, num_of_labs):
     print(tabulate(labs, headers=["NUMBER", "LAB", "STATE", "UUID"]))
     print("\n" * 5)
     print("\n('q' to quit.)\n\n")
@@ -299,7 +299,7 @@ def cml_console_server_check():
 ################################################################################
 
 
-def config_yaml_check():
+def config_yaml_check(config_yaml):
     config_yaml_exists = os.path.exists(config_yaml)
 
     if config_yaml_exists:
@@ -343,7 +343,7 @@ def set_config_variables():
 ################################################################################
 
 
-def create_lab_session_dir():
+def create_lab_session_dir(sessions_cml_labs_dir, lab_title):
     node_session_dir = os.path.join(sessions_cml_labs_dir, lab_title)
     try:
         os.makedirs(node_session_dir, exist_ok=True)
@@ -363,7 +363,14 @@ def create_lab_session_dir():
 ################################################################################
 
 
-def generate_node_sessions_files(node_session_dir):
+def generate_node_sessions_files(
+    sessions_cml_labs_dir,
+    lab_nodes,
+    invalid_chars,
+    node_session_dir,
+    lab_title_command,
+    lab_title,
+):
     print()
     print("Generating session files.")
     print("=" * 79)
@@ -423,7 +430,7 @@ def generate_node_sessions_files(node_session_dir):
 ################################################################################
 
 
-def setup():
+def setup(init_console_server_session_file, sessions_dir, config_yaml, securecrt_path):
     search_username = "CHANGEME_USER"
     search_contr = "CHANGEME_CONTR"
     search_cml_cmd = "CHANGEME_CMD"
@@ -642,82 +649,105 @@ def setup():
 ################################################################################
 
 
-running = True
-while running:
-    securecrt = application_installed()
-    securecrt_path = securecrt
+## MAIN ########################################################################
+################################################################################
 
-    config_dir = config_path()
-    sessions_dir = os.path.join(config_dir, "Sessions")
 
-    initial_config_check()
-    init_console_server_session_file = "cml_console_server"
+def main():
+    running = True
+    while running:
+        securecrt = application_installed()
+        securecrt_path = securecrt
 
-    cml_console_server_check()
+        config_dir = config_path()
+        sessions_dir = os.path.join(config_dir, "Sessions")
 
-    config_yaml = "config.yaml"
+        initial_config_check()
+        init_console_server_session_file = "cml_console_server"
 
-    while True:
-        config_yaml_exists = config_yaml_check()
+        cml_console_server_check()
 
-        if config_yaml_exists:
-            cml_configs = set_config_variables()
-            cml_user = cml_configs["cml_user"]
-            cml_pass = cml_configs["cml_pass"]
-            cml_server = cml_configs["cml_server"]
+        config_yaml = "config.yaml"
 
-            sessions_cml_labs_dir_name = "CML " + cml_server + " Labs"
-            sessions_cml_labs_dir = os.path.join(
-                sessions_dir, sessions_cml_labs_dir_name
-            )
-            sessions_cml_labs_dir_exists = os.path.exists(sessions_cml_labs_dir)
+        while True:
+            config_yaml_exists = config_yaml_check(config_yaml)
 
-            if sessions_cml_labs_dir_exists is False:
-                input(
-                    f"The directory {sessions_cml_labs_dir} was not found.\nPress Enter to begin setup..."
+            if config_yaml_exists:
+                cml_configs = set_config_variables()
+                cml_user = cml_configs["cml_user"]
+                cml_pass = cml_configs["cml_pass"]
+                cml_server = cml_configs["cml_server"]
+
+                sessions_cml_labs_dir_name = "CML " + cml_server + " Labs"
+                sessions_cml_labs_dir = os.path.join(
+                    sessions_dir, sessions_cml_labs_dir_name
                 )
-                os.remove(config_yaml)
+                sessions_cml_labs_dir_exists = os.path.exists(sessions_cml_labs_dir)
+
+                if sessions_cml_labs_dir_exists is False:
+                    input(
+                        f"The directory {sessions_cml_labs_dir} was not found.\nPress Enter to begin setup..."
+                    )
+                    os.remove(config_yaml)
+                    break
+
+                print(f"\nVALIDATING ACCOUNT {cml_user} AGAINST {cml_server}\n")
+
+                validate_return = validate_settings_get_token(
+                    cml_user, cml_pass, cml_server
+                )
+
+                if isinstance(validate_return, dict):
+                    base_url = validate_return["cml_url"]
+                    token = validate_return["bearer_token"]
+                else:
+                    input("AUTHENTICATION FAILED\nPress Enter to begin setup...\n")
+                    os.remove(config_yaml)
+                    break
+
+                lab_info = get_lab_info(base_url, token)
+                labs = lab_info["lab_details"]
+                num_of_labs = lab_info["total_labs"]
+
+                lab_selection = lab_selector(labs, num_of_labs)
+
+                invalid_chars = ("<", ">", ":", '"', "\/", "\\", "|", "?", "*")
+
+                lab_nodes = lab_info["lab_tiles"][lab_selection]["topology"]["nodes"]
+                lab_title = lab_info["lab_tiles"][lab_selection]["lab_title"]
+                lab_title_command = lab_title
+
+                for invalid_char in invalid_chars:
+                    if invalid_char in lab_title:
+                        lab_title_command = lab_title
+                        new_lab_title = lab_title.replace(invalid_char, "_").strip()
+                        lab_title = new_lab_title
+
+                node_session_dir = create_lab_session_dir(
+                    sessions_cml_labs_dir, lab_title
+                )
+
+                generate_node_sessions_files(
+                    sessions_cml_labs_dir,
+                    lab_nodes,
+                    invalid_chars,
+                    node_session_dir,
+                    lab_title_command,
+                    lab_title,
+                )
+
+                running = False
                 break
-
-            print(f"\nVALIDATING ACCOUNT {cml_user} AGAINST {cml_server}\n")
-
-            validate_return = validate_settings_get_token(
-                cml_user, cml_pass, cml_server
-            )
-
-            if isinstance(validate_return, dict):
-                base_url = validate_return["cml_url"]
-                token = validate_return["bearer_token"]
             else:
-                input("AUTHENTICATION FAILED\nPress Enter to begin setup...\n")
-                os.remove(config_yaml)
+                setup(
+                    init_console_server_session_file,
+                    sessions_dir,
+                    config_yaml,
+                    securecrt_path,
+                )
+                os.system("cls")
                 break
 
-            lab_info = get_lab_info(base_url, token)
-            labs = lab_info["lab_details"]
-            num_of_labs = lab_info["total_labs"]
 
-            lab_selection = lab_selector(labs)
-
-            invalid_chars = ("<", ">", ":", '"', "\/", "\\", "|", "?", "*")
-
-            lab_nodes = lab_info["lab_tiles"][lab_selection]["topology"]["nodes"]
-            lab_title = lab_info["lab_tiles"][lab_selection]["lab_title"]
-            lab_title_command = lab_title
-
-            for invalid_char in invalid_chars:
-                if invalid_char in lab_title:
-                    lab_title_command = lab_title
-                    new_lab_title = lab_title.replace(invalid_char, "_").strip()
-                    lab_title = new_lab_title
-
-            node_session_dir = create_lab_session_dir()
-
-            generate_node_sessions_files(node_session_dir)
-
-            running = False
-            break
-        else:
-            setup()
-            os.system("cls")
-            break
+if __name__ == "__main__":
+    main()
