@@ -84,7 +84,7 @@ def config_path():
 
 
 def get_config_settings():
-    os.system("cls")
+    # os.system("cls")
 
     cml_username = ""
     while len(cml_username) == 0:
@@ -100,7 +100,7 @@ def get_config_settings():
                 break
             else:
                 cml_password = ""
-                input("Passwords did not match\nPress Enter to try again...")
+                input("Passwords did not match\nPress ENTER to try again...")
 
     cml_name_or_ip = ""
     while len(cml_name_or_ip) == 0:
@@ -146,8 +146,6 @@ def validate_settings_get_token(cml_user, cml_pass, cml_server):
         token_text = authenticate_response.text
         token = token_text.strip('"')
         if "200" in authenticate_status_code:
-            print("AUTHENTICATION SUCCEEDED\n")
-
             validate_return = dict()
             validate_return["status_code"] = authenticate_status_code
             validate_return["cml_url"] = base_url
@@ -305,7 +303,6 @@ def config_yaml_check(config_yaml):
     if config_yaml_exists:
         return True
     else:
-        print(f"{config_yaml} was not found. \n\nBeginning Setup\n")
         return False
 
 
@@ -372,7 +369,7 @@ def generate_node_sessions_files(
     lab_title,
 ):
     print()
-    print("Generating session files.")
+    print(f"Generating session files for lab: {lab_title}")
     print("=" * 79)
 
     node_session_template_filename = "node_session_template"
@@ -419,8 +416,9 @@ def generate_node_sessions_files(
                 f.write(node_session_data)
 
     print()
-    print(f"Generation of node session files for lab '{lab_title}' complete\n")
-    input("Press Enter to exit\n\n")
+    print(f"Generation of node session files for lab '{lab_title}' complete.\n\n")
+    print("=" * 79)
+    input("Press ENTER to exit...")
 
 
 ################################################################################
@@ -431,6 +429,18 @@ def generate_node_sessions_files(
 
 
 def setup(init_console_server_session_file, sessions_dir, config_yaml, securecrt_path):
+    os.system("cls")
+
+    print(
+        """
+Ensure that SecureCRT is not running before continuing 
+Setup cannot properly complete if SecureCRT is running\n\n
+    """
+    )
+
+    input("Press ENTER to continue setup...")
+    os.system("cls")
+
     search_username = "CHANGEME_USER"
     search_contr = "CHANGEME_CONTR"
     search_cml_cmd = "CHANGEME_CMD"
@@ -446,12 +456,11 @@ def setup(init_console_server_session_file, sessions_dir, config_yaml, securecrt
         sessions_dir, node_session_template_filename
     )
 
-    print(f"{config_yaml} was not found.\nStarting Setup\n")
     while True:
         config_settings = get_config_settings()
         os.system("cls")
         print(
-            f"\nVALIDATING ACCOUNT {config_settings['cml_user']} AGAINST {config_settings['cml_server']}\n"
+            f"VALIDATING ACCOUNT {config_settings['cml_user']} AGAINST {config_settings['cml_server']}\n"
         )
         validate_return = validate_settings_get_token(
             config_settings["cml_user"],
@@ -461,7 +470,7 @@ def setup(init_console_server_session_file, sessions_dir, config_yaml, securecrt
         if validate_return:
             message1 = (
                 f"Try entering configuration settings again.\n"
-                f"Press Enter to continue..."
+                f"Press ENTER to continue..."
             )
             if "403" in validate_return:
                 while "403" in validate_return:
@@ -483,6 +492,7 @@ def setup(init_console_server_session_file, sessions_dir, config_yaml, securecrt
                     input(message1)
                     break
             elif "200" in validate_return["status_code"]:
+                print("AUTHENTICATION SUCCEEDED\n")
                 bearer_token = validate_return["bearer_token"]
                 base_url = validate_return["cml_url"]
                 break
@@ -495,9 +505,10 @@ def setup(init_console_server_session_file, sessions_dir, config_yaml, securecrt
             print(validate_return)
             input(message1)
 
-    def create_config_yaml():
-        print("Creating config.yaml file.")
+    time.sleep(3)
+    os.system("cls")
 
+    def create_config_yaml():
         search_cml_username = "CHANGEME_USER"
         search_cml_password = "CHANGEME_PASS"
         search_cml_name_or_ip = "CHANGEME_CML"
@@ -510,9 +521,6 @@ def setup(init_console_server_session_file, sessions_dir, config_yaml, securecrt
 
         with open(r"config.yaml", "w") as f:
             f.write(data)
-
-        print()
-        # print("Creating cml_console_server.ini session file.")
 
     def create_console_server_session_file(cml_user, cml_server):
         # Creating cml_console_server session file
@@ -537,16 +545,35 @@ def setup(init_console_server_session_file, sessions_dir, config_yaml, securecrt
             f.write(console_session_data)
 
         def get_encrypted_seccrt_creds():
-            print()
-            print("Creating cml_console_server.ini session file.")
-
             seccrt = securecrt_path
+            print(
+                """
+The script will attempt to use SecureCRT to connect to the 
+CML console server via SSH using the provided credentials.
+            """
+            )
+            print(
+                """
+You will need to enter your CML password and leave the 
+'Save password' box checked. YOU WILL HAVE 60 SECONDS.
+            """
+            )
+            print(
+                """
+This will create a template file with your encrypted credentials 
+which will be used to generate session files for use with SecureCRT.
+            """
+            )
+            print(
+                "Close SecureCRT once the 'cml_console_server' session disconnects\n\n"
+            )
+            input("Press ENTER to continue setup...\n")
             print("Launching SecureCRT with cml_console_server session")
-            cmd = [seccrt, "/T", "/S", "cml_console_server"]
-            print()
-            print()
-            print("Close SecureCRT once the cml_console_server session disconnects\n\n")
 
+            # Command to launch an SSH session in a tab in SecureCRT
+            cmd = [seccrt, "/T", "/S", "cml_console_server"]
+
+            # Executing SecureCRT
             try:
                 subprocess.run(cmd, timeout=60, check=True)
             except FileNotFoundError as exc:
@@ -616,7 +643,6 @@ def setup(init_console_server_session_file, sessions_dir, config_yaml, securecrt
 
     def housekeeping():
         # Deleting cml_console_server.ini template file
-        print()
         if os.path.exists(console_session_template_location):
             print(f"Deleting {console_session_template_location}")
             os.remove(console_session_template_location)
@@ -624,12 +650,6 @@ def setup(init_console_server_session_file, sessions_dir, config_yaml, securecrt
             print(f"{console_session_template_location} does not exist")
             print("Exiting")
             sys.exit(1)
-
-        print("=" * 79)
-
-        print()
-        print("Node session template file generation complete")
-        print("=" * 79)
 
     create_config_yaml()
 
@@ -686,7 +706,7 @@ def main():
 
                 if sessions_cml_labs_dir_exists is False:
                     input(
-                        f"The directory {sessions_cml_labs_dir} was not found.\nPress Enter to begin setup..."
+                        f"The directory {sessions_cml_labs_dir} was not found.\nPress ENTER to begin setup..."
                     )
                     os.remove(config_yaml)
                     break
@@ -698,10 +718,13 @@ def main():
                 )
 
                 if isinstance(validate_return, dict):
+                    print("AUTHENTICATION SUCCEEDED\n")
                     base_url = validate_return["cml_url"]
                     token = validate_return["bearer_token"]
+                    time.sleep(3)
+                    os.system("cls")
                 else:
-                    input("AUTHENTICATION FAILED\nPress Enter to begin setup...\n")
+                    input("AUTHENTICATION FAILED\nPress ENTER to begin setup...\n")
                     os.remove(config_yaml)
                     break
 
@@ -739,12 +762,17 @@ def main():
                 running = False
                 break
             else:
+                input(
+                    f"{config_yaml} was not found. \n\nPress ENTER to begin setup...\n"
+                )
                 setup(
                     init_console_server_session_file,
                     sessions_dir,
                     config_yaml,
                     securecrt_path,
                 )
+                os.system("cls")
+                input("Setup complete. \nPress ENTER to continue...")
                 os.system("cls")
                 break
 
