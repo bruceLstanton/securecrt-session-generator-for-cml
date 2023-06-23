@@ -1,6 +1,6 @@
 venv/
 config.yaml
-\.vscode/
+.vscode/
 *.~vsd
 *.vsd
 *.bak
