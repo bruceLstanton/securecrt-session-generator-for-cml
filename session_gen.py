@@ -473,24 +473,18 @@ Setup cannot properly complete if SecureCRT is running\n\n
                 f"Press ENTER to continue..."
             )
             if "403" in validate_return:
-                while "403" in validate_return:
-                    print("AUTHENTICATION FAILED\n")
-                    input(message1)
-                    break
+                print("AUTHENTICATION FAILED\n")
+                input(message1)
             elif "timeout" in validate_return:
-                while "timeout" in validate_return:
-                    print(
-                        f"ERROR:   COULD NOT CONTACT {config_settings['cml_server']} \nREASON:  TIMEOUT\n"
-                    )
-                    input(message1)
-                    break
+                print(
+                    f"ERROR:   COULD NOT CONTACT {config_settings['cml_server']} \nREASON:  TIMEOUT\n"
+                )
+                input(message1)
             elif "getaddrinfo" in validate_return:
-                while "getaddrinfo" in validate_return:
-                    print(
-                        f"ERROR:   BAD HOSTNAME OR ADDRESS: {config_settings['cml_server']}\n"
-                    )
-                    input(message1)
-                    break
+                print(
+                    f"ERROR:   BAD HOSTNAME OR ADDRESS: {config_settings['cml_server']}\n"
+                )
+                input(message1)
             elif "200" in validate_return["status_code"]:
                 print("AUTHENTICATION SUCCEEDED\n")
                 bearer_token = validate_return["bearer_token"]
