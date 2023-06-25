@@ -4,5 +4,4 @@ config.yaml
 *.~vsd
 *.vsd
 *.bak
-*.png
 *.jpg
