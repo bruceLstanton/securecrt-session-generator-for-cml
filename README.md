@@ -11,7 +11,7 @@ The purpose of this project is to make console access to devices in CML more con
 
 Newly created sessions will be organized in the SecureCRT "Sessions" directory as:
 
-CML [ip_address_or_hostname] Labs\\[lab_name]\\[device_name]
+CML ip_address_or_hostname Labs\\lab_name\\device_name.ini
 
 ## Screenshots
 ![Screenshot](./docs/images/lab_selection.png)
@@ -30,7 +30,8 @@ CML [ip_address_or_hostname] Labs\\[lab_name]\\[device_name]
 - The source directory (SecureCRT_Session_Generator_For_CML) can be placed anywhere (it can be renamed if desired).
 
 ### Scripted Method
-- Execute install.bat from within the source directory. It will instantiate a virtual environment within the same directory and download/install all necessary Python packages.
+- Execute install.bat from within the source directory.
+- install.bat will instantiate a virtual environment within the source directory and download/install all necessary Python packages within the environment.
 
 ### Manual Method
 - Open a command prompt/PowerShell session.
