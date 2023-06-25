@@ -5,13 +5,13 @@ Python 3.10.1
 
 ## Introduction
 
-The method of console access to lab devices baked into CML is not very conducive to fast, efficient navigation between consoles --a fact that put me off of even using CML for months after purchasing it.
+The method of console access to lab devices baked into CML is not very conducive to fast, efficient navigation between device consoles.
 
-The purpose of this project is to make console access to devices in CML more convenient by allowing users to automate the creation of SecureCRT session files. It leverages CML's built-in console server (not the breakout tool).
+The purpose of this project is to make console access to devices in CML more convenient by allowing users to automate the creation of SecureCRT session files. It leverages CML's built-in `console server` (not the breakout tool).
 
-Newly created sessions will be organized in your SecureCRT "Sessions" directory as:
+Newly created sessions will be organized in the SecureCRT "Sessions" directory as:
 
-CML [ip_address or hostname] Labs\\[lab_name]\\[device_name]
+CML [ip_address_or_hostname] Labs\\[lab_name]\\[device_name]
 
 ## Requirements
 
@@ -50,11 +50,18 @@ Navigate to the source directory.
 
 ### Manual Method
 - Open a command prompt/PowerShell session.
-Navigate to the source directory. Execute the following command:
+- Navigate to the source directory. Execute the following command:
 
         .\venv\Scripts\python.exe session_gen.py
 
 - Follow the prompts in the terminal
+
+### Notes
+- Credentials and CML IP/hostname are stored in cleartext in config.yaml
+- Deleting config.yaml will allow the user to re-enter CML credentials and host information the next time the script is executed.
+- The password stored in the session files are encrypted by SecureCRT.
+- This tool only needs to be run to generate sessions for existing labs, new labs, changes (additions, removals, renamings) to devices in existing labs for which sessions have already been created, or if a lab has been renamed that has had sessions generated.
+- This tool does not need to be running in order for console sessions to function.
 
 ## Compatibility
 
