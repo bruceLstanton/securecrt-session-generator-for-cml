@@ -1,3 +1,3 @@
 @echo off
 
-call .\venv\Scripts\python.exe -m session_gen.py
+call .\venv\Scripts\python.exe session_gen.py
