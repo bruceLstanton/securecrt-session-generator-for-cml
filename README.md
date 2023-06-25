@@ -1,7 +1,7 @@
 # SecureCRT Session Generator for CML
 
 
-[![Python3.8](https://img.shields.io/static/v1?label=Python&logo=Python&color=3776AB&message=3.10)](https://www.python.org/)
+[![Python3.10](https://img.shields.io/static/v1?label=Python&logo=Python&color=3776AB&message=3.10)](https://www.python.org/)
 
 ## Introduction
 
