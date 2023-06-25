@@ -13,6 +13,11 @@ Newly created sessions will be organized in the SecureCRT "Sessions" directory a
 
 CML [ip_address_or_hostname] Labs\\[lab_name]\\[device_name]
 
+## Screenshots
+![Screenshot](./docs/images/lab_selection.png)
+![Screenshot](./docs/images/seccrt_and_cml.png)
+![Screenshot](./docs/images/seccrt_consoled_in.png)
+
 ## Requirements
 
 - Windows 10 (possibly 11)
