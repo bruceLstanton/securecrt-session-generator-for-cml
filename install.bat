@@ -1,6 +1,6 @@
 @echo off
 
-echo "The installer requires Internet connectivity to download Python packages listed in the requirements.txt file."
+echo "The installer requires Internet connectivity to download Python packages listed in requirements.txt."
 echo.
 echo "Check Internet connectivity before continuing installation."
 echo.
