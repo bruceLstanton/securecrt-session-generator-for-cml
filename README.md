@@ -25,7 +25,7 @@ CML [ip_address_or_hostname] Labs\\[lab_name]\\[device_name]
 - SecureCRT 8.7.2 or later
 
 ## Installation
-- Requires Internet connectivity
+- Internet connectivity required.
 - Recommend using a virtual environment.
 - The source directory (SecureCRT_Session_Generator_For_CML) can be placed anywhere (it can be renamed if desired).
 
@@ -34,7 +34,7 @@ CML [ip_address_or_hostname] Labs\\[lab_name]\\[device_name]
 
 ### Manual Method
 - Open a command prompt/PowerShell session.
-Navigate to the source directory. 
+- Navigate to the source directory. 
 - Execute the following command to create the virtual environment:
 
         python -m venv venv
@@ -51,7 +51,7 @@ Navigate to the source directory.
 
 ### Scripted Method
 - Execute the crt_session_generator.bat from the source directory or via a shortcut to it.
-- Follow the prompts in the terminal
+- Follow the prompts in the terminal.
 
 ### Manual Method
 - Open a command prompt/PowerShell session.
@@ -62,7 +62,7 @@ Navigate to the source directory.
 - Follow the prompts in the terminal
 
 ### Notes
-- Credentials and CML IP/hostname are stored in cleartext in config.yaml
+- Credentials and CML IP/hostname are stored in cleartext in config.yaml.
 - Deleting config.yaml will allow the user to re-enter CML credentials and host information the next time the script is executed.
 - The password stored in the session files are encrypted by SecureCRT.
 - This tool only needs to be run to generate sessions for existing labs, new labs, changes (additions, removals, renamings) to devices in existing labs for which sessions have already been created, or if a lab has been renamed that has had sessions generated.
