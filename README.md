@@ -1,11 +1,11 @@
-# SecureCRT Session Generator for CML
+# SecureCRT Session Generator for Cisco Modeling Labs (CML) 
 
 
 [![Python3.10](https://img.shields.io/static/v1?label=Python&logo=Python&color=3776AB&message=3.10)](https://www.python.org/)
 
 ## Introduction
 
-The method of console access to lab devices baked into CML is not very conducive to fast, efficient navigation between device consoles.
+The method of console access to lab devices baked into CML is less than ideal for fast, efficient navigation between device consoles.
 
 The purpose of this project is to make console access to devices in CML more convenient by allowing users to automate the creation of SecureCRT session files. It leverages CML's built-in `console server` (not the breakout tool).
 
