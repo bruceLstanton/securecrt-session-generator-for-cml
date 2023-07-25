@@ -416,9 +416,9 @@ def generate_node_sessions_files(
                 f.write(node_session_data)
 
     print()
-    print(f"Generation of node session files for lab '{lab_title}' complete.\n\n")
+    print(f"Generation of node session files for lab '{lab_title}' complete.")
     print("=" * 79)
-    input("Press ENTER to exit...")
+    input("Press ENTER to exit...\n\n")
 
 
 ################################################################################
@@ -499,7 +499,7 @@ Setup cannot properly complete if SecureCRT is running\n\n
             print(validate_return)
             input(message1)
 
-    time.sleep(3)
+    time.sleep(2)
     os.system("cls")
 
     def create_config_yaml():
@@ -715,7 +715,7 @@ def main():
                     print("AUTHENTICATION SUCCEEDED\n")
                     base_url = validate_return["cml_url"]
                     token = validate_return["bearer_token"]
-                    time.sleep(3)
+                    time.sleep(2)
                     os.system("cls")
                 else:
                     input("AUTHENTICATION FAILED\nPress ENTER to begin setup...\n")
