@@ -418,7 +418,7 @@ def generate_node_sessions_files(
     print()
     print(f"Generation of node session files for lab '{lab_title}' complete.")
     print("=" * 79)
-    input("Press ENTER to exit...\n\n")
+    input("\nPress ENTER to exit...\n\n")
 
 
 ################################################################################
