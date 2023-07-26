@@ -33,7 +33,7 @@ Each session file will be named to match its associated device/node name in the 
 
 ### Scripted Method
 - Execute install.bat from within the source directory.
-- install.bat will instantiate a virtual environment within the source directory and download/install all necessary Python packages within the environment.
+- _install.bat_ will instantiate a virtual environment within the source directory and download/install all necessary Python packages within the environment.
 
 ### Manual Method
 - Open a command prompt/PowerShell session.
