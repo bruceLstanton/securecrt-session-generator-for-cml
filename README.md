@@ -28,12 +28,12 @@ Each session file will be named to match its associated device/node name in the 
 
 ## Installation
 - Internet connectivity required.
-- Recommend using venv.
+- Recommend using **venv**.
 - The source directory (_securecrt-session-generator-for-cml_) can be placed anywhere. It can be renamed if desired.
 
 ### Scripted Method
-- Execute install.bat from within the source directory.
-- _install.bat_ will instantiate a virtual environment within the source directory and download/install all necessary Python packages within the environment.
+- Execute **install.bat** from within the source directory.
+- **install.bat** will instantiate a virtual environment within the source directory and download/install all necessary Python packages within the environment.
 
 ### Manual Method
 - Open a command prompt/PowerShell session.
@@ -53,7 +53,7 @@ Each session file will be named to match its associated device/node name in the 
 ## Usage
 
 ### Scripted Method
-- Execute the crt_session_generator.bat from the source directory or via a shortcut to it.
+- Execute the **crt_session_generator.bat** from the source directory or via a shortcut to it.
 - Follow the prompts in the terminal.
 
 ### Manual Method
@@ -67,7 +67,7 @@ Each session file will be named to match its associated device/node name in the 
 ### Notes
 - Neither I nor this project is associated with Cisco Systems, Inc. or VanDyke Software in any way.
 - Credentials and CML IP/hostname are stored in cleartext in config.yaml. This was orignally meant to mimic how the Breakout Tool operates.
-- Deleting config.yaml will allow the user to re-enter CML credentials and host information the next time the script is executed.
+- Deleting **config.yaml** will allow the user to re-enter CML credentials and host information the next time the script is executed.
 - The password stored in the session files are encrypted by SecureCRT if setup was follwed as instructed.
 - This tool only needs to be run to generate sessions for existing labs, new labs, changes (additions, removals, renamings) to devices in existing labs for which sessions have already been created, or if a lab has been renamed that has had sessions generated.
 - This tool does not need to be running in order for console sessions to function.
