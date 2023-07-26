@@ -9,9 +9,10 @@ The method of console access to lab devices baked into CML is less than ideal fo
 
 The purpose of this project is to make console access to devices in CML more convenient by allowing users to automate the creation of SecureCRT session files. It leverages CML's built-in `console server` (not the breakout tool).
 
-Newly created sessions will be organized in the SecureCRT "Sessions" directory as:
+Each session file will be named to match its associated device/node name in the lab and will display that name in the tab in SecureCRT when the session is used.
 
-CML ip_address_or_hostname Labs\\lab_name\\device_name.ini
+## Demo
+![Demo](./docs/images/demo.gif)
 
 ## Screenshots
 ![Screenshot](./docs/images/lab_selection.png)
@@ -21,13 +22,14 @@ CML ip_address_or_hostname Labs\\lab_name\\device_name.ini
 ## Requirements
 
 - Windows 10 (possibly 11)
-
+- Python 3
 - SecureCRT 8.7.2 or later
+- CML 2.2.2 or later
 
 ## Installation
 - Internet connectivity required.
-- Recommend using a virtual environment.
-- The source directory (SecureCRT_Session_Generator_For_CML) can be placed anywhere (it can be renamed if desired).
+- Recommend using venv.
+- The source directory (_securecrt-session-generator-for-cml_) can be placed anywhere. It can be renamed if desired.
 
 ### Scripted Method
 - Execute install.bat from within the source directory.
@@ -63,15 +65,9 @@ CML ip_address_or_hostname Labs\\lab_name\\device_name.ini
 - Follow the prompts in the terminal
 
 ### Notes
-- Credentials and CML IP/hostname are stored in cleartext in config.yaml.
+- Neither I nor this project is associated with Cisco Systems, Inc. or VanDyke Software in any way.
+- Credentials and CML IP/hostname are stored in cleartext in config.yaml. This was orignally meant to mimic how the Breakout Tool operates.
 - Deleting config.yaml will allow the user to re-enter CML credentials and host information the next time the script is executed.
-- The password stored in the session files are encrypted by SecureCRT.
+- The password stored in the session files are encrypted by SecureCRT if setup was follwed as instructed.
 - This tool only needs to be run to generate sessions for existing labs, new labs, changes (additions, removals, renamings) to devices in existing labs for which sessions have already been created, or if a lab has been renamed that has had sessions generated.
 - This tool does not need to be running in order for console sessions to function.
-
-## Compatibility
-
-CML 2
-
-## Licensing Info
-
