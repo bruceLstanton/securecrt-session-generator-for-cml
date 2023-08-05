@@ -213,9 +213,7 @@ def lab_selector(labs, num_of_labs):
 
     while True:
         # print("\n('q' to quit.)\n\n")
-        user_specified_lab = input(
-            "Enter lab NUMBER you wish to generate sessions for from the list above: "
-        )
+        user_specified_lab = input("Enter a lab NUMBER from the list above: ")
         print()
 
         if "q" in user_specified_lab:
