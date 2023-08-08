@@ -1,10 +1,8 @@
-from msilib.schema import Directory
 import sys
 import os
 from getpass import getpass
 from platform import node
 import shutil
-import winreg
 import subprocess
 import yaml
 import json
@@ -15,36 +13,35 @@ from tabulate import tabulate
 from traceback import format_exc
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 
-################################################################################
-
-os.system("cls")
-
-requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
 ## SECURECRT PATH ##############################################################
 ################################################################################
 
 
 def application_installed():
-    # SecureCRT may or may not be in system PATH
-    # This is how to find it whether it is or not
-    program_files_32bit = os.environ.get("ProgramFiles(x86)")
-    program_files_64bit = os.environ.get("ProgramW6432")
-    securecrt_dir = "VanDyke Software\\SecureCRT\\"
-    securecrt_file = "SecureCRT.exe"
-    securecrt_loc_32bit = os.path.join(
-        program_files_32bit, securecrt_dir, securecrt_file
-    )
-    securecrt_loc_64bit = os.path.join(
-        program_files_64bit, securecrt_dir, securecrt_file
-    )
-    securecrt_exists_32bit = os.path.exists(securecrt_loc_32bit)
-    securecrt_exists_64bit = os.path.exists(securecrt_loc_64bit)
-
-    if securecrt_exists_32bit:
-        securecrt_path = securecrt_loc_32bit
-    elif securecrt_exists_64bit:
-        securecrt_path = securecrt_loc_64bit
+    if OS == "win32":
+        # SecureCRT may or may not be in system PATH
+        # This is how to find it whether it is or not
+        program_files_32bit = os.environ.get("ProgramFiles(x86)")
+        program_files_64bit = os.environ.get("ProgramW6432")
+        securecrt_dir = "VanDyke Software\\SecureCRT\\"
+        securecrt_file = "SecureCRT.exe"
+        securecrt_loc_32bit = os.path.join(
+            program_files_32bit, securecrt_dir, securecrt_file
+        )
+        securecrt_loc_64bit = os.path.join(
+            program_files_64bit, securecrt_dir, securecrt_file
+        )
+        if os.path.exists(securecrt_loc_32bit):
+            securecrt_path = securecrt_loc_32bit
+        elif os.path.exists(securecrt_loc_64bit):
+            securecrt_path = securecrt_loc_64bit
+    elif OS == "darwin":
+        securecrt_dir = "/Applications"
+        securecrt_file = "SecureCRT.app"
+        securecrt_loc = os.path.join(securecrt_dir, securecrt_file)
+        if os.path.exists(securecrt_loc):
+            securecrt_path = securecrt_loc
     else:
         print(f"{securecrt_file} was not found.")
         print("Exiting")
@@ -58,21 +55,31 @@ def application_installed():
 
 
 def config_path():
-    application_installed()
-    # Searching Windows registry
-    # If exists, securecrt_dir will be set to seccrt_key[0]
-    path = winreg.HKEY_CURRENT_USER
-    seccrt_location = winreg.OpenKeyEx(path, r"SOFTWARE\\VanDyke\\SecureCRT\\")
-    seccrt_key = winreg.QueryValueEx(seccrt_location, "Config Path")
+    # seccrt_key is a holdover from when this script was only for Windows
+    if OS == "win32":
+        # Searching Windows registry
+        # If exists, securecrt_dir will be set to seccrt_key[0]
+        path = winreg.HKEY_CURRENT_USER
+        seccrt_location = winreg.OpenKeyEx(path, r"SOFTWARE\\VanDyke\\SecureCRT\\")
+        seccrt_key = winreg.QueryValueEx(seccrt_location, "Config Path")
+        if seccrt_location:
+            winreg.CloseKey(seccrt_location)
+            seccrt_key = list(seccrt_key).pop(0)
+    elif OS == "darwin":
+        seccrt_key = os.path.expanduser(
+            "~/Library/Application Support/VanDyke/SecureCRT/Config"
+        )
+        if os.path.exists(seccrt_key):
+            sessions_dir = os.path.join(seccrt_key, "Sessions")
 
-    if seccrt_location:
-        winreg.CloseKey(seccrt_location)
-        seccrt_key = list(seccrt_key).pop(0)
-        return seccrt_key
+            if os.path.exists(sessions_dir):
+                seccrt_key = sessions_dir
     else:
         print("SecureCRT configuration path was not found.")
         print("Exiting")
         sys.exit(1)
+
+    return seccrt_key
 
 
 ################################################################################
@@ -81,13 +88,13 @@ def config_path():
 
 
 def get_config_settings():
-    # os.system("cls")
-
     cml_username = ""
+
     while len(cml_username) == 0:
         cml_username = input("CML Username: ").strip()
 
     cml_password = ""
+
     while len(cml_password) == 0:
         cml_password_conf = ""
         cml_password = getpass("CML Password: ").strip()
@@ -126,6 +133,7 @@ def validate_settings_get_token(cml_user, cml_pass, cml_server):
 
     payload = json.dumps({"username": cml_user, "password": cml_pass})
     headers = {"Content-Type": "application/json", "Accept": "application/json"}
+
     try:
         authenticate_response = requests.request(
             "POST",
@@ -209,17 +217,14 @@ def get_lab_info(base_url, bearer_token):
 def lab_selector(labs, num_of_labs):
     print(tabulate(labs, headers=["NUMBER", "LAB", "STATE", "UUID"]))
     print("\n" * 5)
-    print("\n('q' to quit.)\n\n")
+    print("\n['q' to quit.]\n\n")
 
     while True:
-        # print("\n('q' to quit.)\n\n")
         user_specified_lab = input("Enter a lab NUMBER from the list above: ")
         print()
-
         if "q" in user_specified_lab:
             print("Exiting")
             sys.exit(1)
-
         if user_specified_lab.isdigit():
             user_specified_lab = int(user_specified_lab)
             if user_specified_lab in range(1, num_of_labs):
@@ -242,9 +247,8 @@ def lab_selector(labs, num_of_labs):
 
 def initial_config_check():
     init_config_file = "initial_config"
-    init_config_exists = os.path.exists(init_config_file)
 
-    if init_config_exists:
+    if os.path.exists(init_config_file):
         pass
     else:
         print(f"{init_config_file} was not found.")
@@ -258,11 +262,8 @@ def initial_config_check():
 
 def cml_console_server_check():
     init_console_server_session_file = "cml_console_server"
-    init_console_server_session_file_exists = os.path.exists(
-        init_console_server_session_file
-    )
 
-    if init_console_server_session_file_exists:
+    if os.path.exists(init_console_server_session_file):
         pass
     else:
         print(f"{init_console_server_session_file} was not found.")
@@ -274,10 +275,8 @@ def cml_console_server_check():
 ################################################################################
 
 
-def config_yaml_check(config_yaml):
-    config_yaml_exists = os.path.exists(config_yaml)
-
-    if config_yaml_exists:
+def config_yaml_check(CONFIG_YAML):
+    if os.path.exists(CONFIG_YAML):
         return True
     else:
         return False
@@ -313,6 +312,7 @@ def set_config_variables():
 
 def create_lab_session_dir(sessions_cml_labs_dir, lab_title):
     node_session_dir = os.path.join(sessions_cml_labs_dir, lab_title)
+
     try:
         os.makedirs(node_session_dir, exist_ok=True)
         print(f"Directory for lab '{lab_title}' created successfully")
@@ -393,8 +393,8 @@ def generate_node_sessions_files(
 ################################################################################
 
 
-def setup(init_console_server_session_file, sessions_dir, config_yaml, securecrt_path):
-    os.system("cls")
+def setup(init_console_server_session_file, sessions_dir, CONFIG_YAML, securecrt_path):
+    os.system(clear_screen)
 
     print(
         """
@@ -404,7 +404,7 @@ Setup cannot properly complete if SecureCRT is running\n\n
     )
 
     input("Press ENTER to continue setup...")
-    os.system("cls")
+    os.system(clear_screen)
 
     search_username = "CHANGEME_USER"
     search_contr = "CHANGEME_CONTR"
@@ -423,7 +423,7 @@ Setup cannot properly complete if SecureCRT is running\n\n
 
     while True:
         config_settings = get_config_settings()
-        os.system("cls")
+        os.system(clear_screen)
         print(
             f"VALIDATING ACCOUNT {config_settings['cml_user']} AGAINST {config_settings['cml_server']}\n"
         )
@@ -432,6 +432,7 @@ Setup cannot properly complete if SecureCRT is running\n\n
             config_settings["cml_pass"],
             config_settings["cml_server"],
         )
+
         if validate_return:
             message1 = (
                 f"Try entering configuration settings again.\n"
@@ -465,7 +466,7 @@ Setup cannot properly complete if SecureCRT is running\n\n
             input(message1)
 
     time.sleep(2)
-    os.system("cls")
+    os.system(clear_screen)
 
     def create_config_yaml():
         search_cml_username = "CHANGEME_USER"
@@ -530,7 +531,15 @@ which will be used to generate session files for use with SecureCRT.
             print("Launching SecureCRT with cml_console_server session")
 
             # Command to launch an SSH session in a tab in SecureCRT
-            cmd = [seccrt, "/T", "/S", "cml_console_server"]
+            if OS == "win32":
+                cmd = [seccrt, "/T", "/S", "cml_console_server"]
+            elif OS == "darwin":
+                cmd = [
+                    "/Applications/SecureCRT.app/Contents/MacOS/SecureCRT",
+                    "/T",
+                    "/S",
+                    "cml_console_server",
+                ]
 
             # Executing SecureCRT
             try:
@@ -553,7 +562,7 @@ which will be used to generate session files for use with SecureCRT.
                 print("\nExiting")
                 sys.exit(1)
 
-            os.system("cls")
+            os.system(clear_screen)
 
             print()
             print("Console server session template file created")
@@ -564,6 +573,7 @@ which will be used to generate session files for use with SecureCRT.
     def create_cml_sessions_dir():
         cml_server_dir = "CML " + cml_server + " Labs"
         sessions_cml_labs_dir = os.path.join(sessions_dir, cml_server_dir)
+
         try:
             os.makedirs(sessions_cml_labs_dir, exist_ok=True)
             print(f"Directory '{cml_server_dir}' created successfully")
@@ -605,6 +615,7 @@ which will be used to generate session files for use with SecureCRT.
         if os.path.exists(console_session_template_location):
             print(f"Deleting {console_session_template_location}")
             os.remove(console_session_template_location)
+            os.system(clear_screen)
         else:
             print(f"{console_session_template_location} does not exist")
             print("Exiting")
@@ -636,18 +647,19 @@ def main():
         securecrt_path = securecrt
 
         config_dir = config_path()
-        sessions_dir = os.path.join(config_dir, "Sessions")
+
+        if OS == "win32":
+            sessions_dir = os.path.join(config_dir, "Sessions")
+        elif OS == "darwin":
+            sessions_dir = config_dir
 
         initial_config_check()
         init_console_server_session_file = "cml_console_server"
 
         cml_console_server_check()
 
-        config_yaml = "config.yaml"
-
         while True:
-            config_yaml_exists = config_yaml_check(config_yaml)
-
+            config_yaml_exists = config_yaml_check(CONFIG_YAML)
             if config_yaml_exists:
                 cml_configs = set_config_variables()
                 cml_user = cml_configs["cml_user"]
@@ -658,13 +670,11 @@ def main():
                 sessions_cml_labs_dir = os.path.join(
                     sessions_dir, sessions_cml_labs_dir_name
                 )
-                sessions_cml_labs_dir_exists = os.path.exists(sessions_cml_labs_dir)
-
-                if sessions_cml_labs_dir_exists is False:
+                if os.path.exists(sessions_cml_labs_dir) is False:
                     input(
                         f"The directory {sessions_cml_labs_dir} was not found.\nPress ENTER to begin setup..."
                     )
-                    os.remove(config_yaml)
+                    os.remove(CONFIG_YAML)
                     break
 
                 print(f"\nVALIDATING ACCOUNT {cml_user} AGAINST {cml_server}\n")
@@ -672,16 +682,15 @@ def main():
                 validate_return = validate_settings_get_token(
                     cml_user, cml_pass, cml_server
                 )
-
                 if isinstance(validate_return, dict):
                     print("AUTHENTICATION SUCCEEDED\n")
                     base_url = validate_return["cml_url"]
                     token = validate_return["bearer_token"]
                     time.sleep(2)
-                    os.system("cls")
+                    os.system(clear_screen)
                 else:
                     input("AUTHENTICATION FAILED\nPress ENTER to begin setup...\n")
-                    os.remove(config_yaml)
+                    os.remove(CONFIG_YAML)
                     break
 
                 lab_info = get_lab_info(base_url, token)
@@ -719,19 +728,37 @@ def main():
                 break
             else:
                 input(
-                    f"{config_yaml} was not found. \n\nPress ENTER to begin setup...\n"
+                    f"{CONFIG_YAML} was not found. \n\nPress ENTER to begin setup...\n"
                 )
                 setup(
                     init_console_server_session_file,
                     sessions_dir,
-                    config_yaml,
+                    CONFIG_YAML,
                     securecrt_path,
                 )
-                os.system("cls")
+                os.system(clear_screen)
                 input("Setup complete. \nPress ENTER to continue...")
-                os.system("cls")
+                os.system(clear_screen)
                 break
 
 
+################################################################################
+################################################################################
+
+
 if __name__ == "__main__":
+    OS = sys.platform
+    CONFIG_YAML = "config.yaml"
+
+    if OS == "win32":
+        from msilib.schema import Directory
+        import winreg
+
+        clear_screen = "cls"
+    elif OS == "darwin":
+        clear_screen = "clear"
+
+    os.system(clear_screen)
+    requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
+
     main()
