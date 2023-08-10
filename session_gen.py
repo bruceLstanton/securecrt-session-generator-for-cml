@@ -507,22 +507,16 @@ Setup cannot properly complete if SecureCRT is running\n\n
         def get_encrypted_seccrt_creds():
             seccrt = securecrt_path
             print(
-                """
-The script will attempt to use SecureCRT to connect to the 
-CML console server via SSH using the provided credentials.
-            """
+                "The script will attempt to use SecureCRT to connect to the\n"
+                "CML console server via SSH using the provided credentials.\n\n"
             )
             print(
-                """
-You will need to enter your CML password and leave the 
-'Save password' box checked. YOU WILL HAVE 60 SECONDS.
-            """
+                "You will need to enter your CML password and leave the\n"
+                "Save password' box checked. YOU WILL HAVE 60 SECONDS.\n\n"
             )
             print(
-                """
-This will create a template file with your encrypted credentials 
-which will be used to generate session files for use with SecureCRT.
-            """
+                "This will create a template file with your encrypted credentials\n"
+                "which will be used to generate session files for use with SecureCRT.\n\n"
             )
             print(
                 "Close SecureCRT once the 'cml_console_server' session disconnects\n\n"
