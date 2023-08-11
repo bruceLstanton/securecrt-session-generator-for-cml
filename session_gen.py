@@ -26,25 +26,27 @@ def application_installed():
         program_files_64bit = os.environ.get("ProgramW6432")
         securecrt_dir = "VanDyke Software\\SecureCRT\\"
         securecrt_file = "SecureCRT.exe"
-        securecrt_loc_32bit = os.path.join(
+        securecrt_path = os.path.join(
             program_files_32bit, securecrt_dir, securecrt_file
         )
-        securecrt_loc_64bit = os.path.join(
-            program_files_64bit, securecrt_dir, securecrt_file
-        )
-        if os.path.exists(securecrt_loc_32bit):
-            securecrt_path = securecrt_loc_32bit
-        elif os.path.exists(securecrt_loc_64bit):
-            securecrt_path = securecrt_loc_64bit
+        if os.path.exists(securecrt_path) is False:
+            securecrt_path = os.path.join(
+                program_files_64bit, securecrt_dir, securecrt_file
+            )
+            if os.path.exists(securecrt_path) is False:
+                input(
+                    f"[ERROR]  {securecrt_file} was not found.\nPress ENTER to exit..."
+                )
+                sys.exit(1)
     elif OS == "darwin":
         securecrt_dir = "/Applications"
         securecrt_file = "SecureCRT.app"
-        securecrt_loc = os.path.join(securecrt_dir, securecrt_file)
-        if os.path.exists(securecrt_loc):
-            securecrt_path = securecrt_loc
+        securecrt_path = os.path.join(securecrt_dir, securecrt_file)
+        if os.path.exists(securecrt_path) is False:
+            input(f"[ERROR]  {securecrt_file} was not found.\nPress ENTER to exit...")
+            sys.exit(1)
     else:
-        print(f"{securecrt_file} was not found.")
-        print("Exiting")
+        input("[ERROR]  Operating system not supported.\nPress ENTER to exit...")
         sys.exit(1)
 
     return securecrt_path
@@ -77,6 +79,7 @@ def config_path():
         )
     else:
         input("[ERROR]  Operating system not supported.\nPress ENTER to exit...")
+        sys.exit(1)
 
     sessions_dir = os.path.join(seccrt_key, "Sessions")
 
