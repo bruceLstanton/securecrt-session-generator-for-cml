@@ -21,7 +21,7 @@ from requests.packages.urllib3.exceptions import InsecureRequestWarning
 def application_installed():
     if OS == "win32":
         # SecureCRT may or may not be in system PATH
-        # This is how to find it whether it is or not
+        # This is how to find it regardless
         program_files_32bit = os.environ.get("ProgramFiles(x86)")
         program_files_64bit = os.environ.get("ProgramW6432")
         securecrt_dir = "VanDyke Software\\SecureCRT\\"
@@ -56,30 +56,37 @@ def application_installed():
 
 def config_path():
     # seccrt_key is a holdover from when this script was only for Windows
+
     if OS == "win32":
-        # Searching Windows registry
-        # If exists, securecrt_dir will be set to seccrt_key[0]
-        path = winreg.HKEY_CURRENT_USER
-        seccrt_location = winreg.OpenKeyEx(path, r"SOFTWARE\\VanDyke\\SecureCRT\\")
-        seccrt_key = winreg.QueryValueEx(seccrt_location, "Config Path")
-        if seccrt_location:
+        try:
+            # Searching Windows registry
+            # If exists, securecrt_dir will be set to seccrt_key[0]
+            path = winreg.HKEY_CURRENT_USER
+            seccrt_location = winreg.OpenKeyEx(path, r"SOFTWARE\\VanDyke\\SecureCRT\\")
+            seccrt_key = winreg.QueryValueEx(seccrt_location, "Config Path")
             winreg.CloseKey(seccrt_location)
             seccrt_key = list(seccrt_key).pop(0)
+        except:
+            input(
+                "[ERROR]  Cannot find SecureCRT configuration directory via Windows registry.\nPress ENTER to exit..."
+            )
+            sys.exit(1)
     elif OS == "darwin":
         seccrt_key = os.path.expanduser(
             "~/Library/Application Support/VanDyke/SecureCRT/Config"
         )
-        if os.path.exists(seccrt_key):
-            sessions_dir = os.path.join(seccrt_key, "Sessions")
-
-            if os.path.exists(sessions_dir):
-                seccrt_key = sessions_dir
     else:
-        print("SecureCRT configuration path was not found.")
-        print("Exiting")
+        input("[ERROR]  Operating system not supported.\nPress ENTER to exit...")
+
+    sessions_dir = os.path.join(seccrt_key, "Sessions")
+
+    if os.path.exists(sessions_dir) is False:
+        input(
+            "[ERROR]  Cannot find SecureCRT configuration directory.\nPress ENTER to exit..."
+        )
         sys.exit(1)
 
-    return seccrt_key
+    return sessions_dir
 
 
 ################################################################################
@@ -154,7 +161,6 @@ def validate_settings_get_token(cml_user, cml_pass, cml_server):
             validate_return["bearer_token"] = token
 
             return validate_return
-
     except requests.exceptions.ConnectTimeout as err:
         err = str(err)
         return err
@@ -370,7 +376,6 @@ def generate_node_sessions_files(
             node_session_file = shutil.copyfile(
                 node_session_template_location, node_session_location
             )
-
             with open(node_session_file, "r") as f:
                 node_session_data = f.read()
                 node_session_data = node_session_data.replace(
@@ -379,7 +384,6 @@ def generate_node_sessions_files(
                 node_session_data = node_session_data.replace(
                     search_cml_node_cmd_label, lab_node_label_command
                 )
-
             with open(node_session_file, "w") as f:
                 f.write(node_session_data)
 
@@ -637,15 +641,9 @@ Setup cannot properly complete if SecureCRT is running\n\n
 def main():
     running = True
     while running:
-        securecrt = application_installed()
-        securecrt_path = securecrt
+        securecrt_path = application_installed()
 
-        config_dir = config_path()
-
-        if OS == "win32":
-            sessions_dir = os.path.join(config_dir, "Sessions")
-        elif OS == "darwin":
-            sessions_dir = config_dir
+        sessions_dir = config_path()
 
         initial_config_check()
         init_console_server_session_file = "cml_console_server"
