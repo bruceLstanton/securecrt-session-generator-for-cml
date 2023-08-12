@@ -404,10 +404,8 @@ def setup(init_console_server_session_file, sessions_dir, CONFIG_YAML, securecrt
     os.system(clear_screen)
 
     print(
-        """
-Ensure that SecureCRT is not running before continuing 
-Setup cannot properly complete if SecureCRT is running\n\n
-    """
+        "Ensure that SecureCRT is not running before continuing.\n"
+        "Setup cannot properly complete if SecureCRT is running\n\n"
     )
 
     input("Press ENTER to continue setup...")
