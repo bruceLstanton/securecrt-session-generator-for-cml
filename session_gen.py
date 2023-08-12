@@ -35,7 +35,7 @@ def application_installed():
             )
             if os.path.exists(securecrt_path) is False:
                 input(
-                    f"[ERROR]  {securecrt_file} was not found.\nPress ENTER to exit..."
+                    f"ERROR:   {securecrt_file} was not found.\nPress ENTER to exit..."
                 )
                 sys.exit(1)
     elif OS == "darwin":
@@ -43,10 +43,10 @@ def application_installed():
         securecrt_file = "SecureCRT.app"
         securecrt_path = os.path.join(securecrt_dir, securecrt_file)
         if os.path.exists(securecrt_path) is False:
-            input(f"[ERROR]  {securecrt_file} was not found.\nPress ENTER to exit...")
+            input(f"ERROR:   {securecrt_file} was not found.\nPress ENTER to exit...")
             sys.exit(1)
     else:
-        input("[ERROR]  Operating system not supported.\nPress ENTER to exit...")
+        input("ERROR:   Operating system not supported.\nPress ENTER to exit...")
         sys.exit(1)
 
     return securecrt_path
@@ -70,7 +70,7 @@ def config_path():
             seccrt_key = list(seccrt_key).pop(0)
         except:
             input(
-                "[ERROR]  Cannot find SecureCRT configuration directory via Windows registry.\nPress ENTER to exit..."
+                "ERROR:   Cannot find SecureCRT configuration directory via Windows registry.\nPress ENTER to exit..."
             )
             sys.exit(1)
     elif OS == "darwin":
@@ -78,14 +78,13 @@ def config_path():
             "~/Library/Application Support/VanDyke/SecureCRT/Config"
         )
     else:
-        input("[ERROR]  Operating system not supported.\nPress ENTER to exit...")
-        sys.exit(1)
+        input("ERROR:   Operating system not supported.\nPress ENTER to exit...")
 
     sessions_dir = os.path.join(seccrt_key, "Sessions")
 
     if os.path.exists(sessions_dir) is False:
         input(
-            "[ERROR]  Cannot find SecureCRT configuration directory.\nPress ENTER to exit..."
+            "ERROR:   Cannot find SecureCRT configuration directory.\nPress ENTER to exit..."
         )
         sys.exit(1)
 
@@ -164,6 +163,7 @@ def validate_settings_get_token(cml_user, cml_pass, cml_server):
             validate_return["bearer_token"] = token
 
             return validate_return
+
     except requests.exceptions.ConnectTimeout as err:
         err = str(err)
         return err
@@ -171,7 +171,7 @@ def validate_settings_get_token(cml_user, cml_pass, cml_server):
         err = str(err).split()
         return err[0]
     except requests.exceptions.ConnectionError as err:
-        err = str(err).split()
+        err = str(err)
         return err
     except requests.exceptions.RequestException as err:
         err = str(err).split()
@@ -379,6 +379,7 @@ def generate_node_sessions_files(
             node_session_file = shutil.copyfile(
                 node_session_template_location, node_session_location
             )
+
             with open(node_session_file, "r") as f:
                 node_session_data = f.read()
                 node_session_data = node_session_data.replace(
@@ -387,6 +388,7 @@ def generate_node_sessions_files(
                 node_session_data = node_session_data.replace(
                     search_cml_node_cmd_label, lab_node_label_command
                 )
+
             with open(node_session_file, "w") as f:
                 f.write(node_session_data)
 
@@ -425,25 +427,36 @@ def setup(init_console_server_session_file, sessions_dir, CONFIG_YAML, securecrt
     node_session_template_location = os.path.join(
         sessions_dir, node_session_template_filename
     )
-
     while True:
+        os.system(clear_screen)
         config_settings = get_config_settings()
         os.system(clear_screen)
+        validate_return = ""
         print(
             f"VALIDATING ACCOUNT {config_settings['cml_user']} AGAINST {config_settings['cml_server']}\n"
         )
+
         validate_return = validate_settings_get_token(
             config_settings["cml_user"],
             config_settings["cml_pass"],
             config_settings["cml_server"],
         )
-
+        # The error handling here could be better, but it works well enough for now.
+        # Will readdress later.
         if validate_return:
             message1 = (
                 f"Try entering configuration settings again.\n"
                 f"Press ENTER to continue..."
             )
-            if "403" in validate_return:
+            if (
+                isinstance(validate_return, dict)
+                and "200" in validate_return["status_code"]
+            ):
+                print("AUTHENTICATION SUCCEEDED\n")
+                bearer_token = validate_return["bearer_token"]
+                base_url = validate_return["cml_url"]
+                break
+            elif "403" in validate_return:
                 print("AUTHENTICATION FAILED\n")
                 input(message1)
             elif "timeout" in validate_return:
@@ -451,22 +464,22 @@ def setup(init_console_server_session_file, sessions_dir, CONFIG_YAML, securecrt
                     f"ERROR:   COULD NOT CONTACT {config_settings['cml_server']} \nREASON:  TIMEOUT\n"
                 )
                 input(message1)
-            elif "getaddrinfo" in validate_return:
+            elif "getaddrinfo" in validate_return or "nodename" in validate_return:
                 print(
                     f"ERROR:   BAD HOSTNAME OR ADDRESS: {config_settings['cml_server']}\n"
                 )
                 input(message1)
-            elif "200" in validate_return["status_code"]:
-                print("AUTHENTICATION SUCCEEDED\n")
-                bearer_token = validate_return["bearer_token"]
-                base_url = validate_return["cml_url"]
-                break
+            elif "unreachable" in validate_return:
+                print(
+                    f"ERROR:   Could not reach CML server at {config_settings['cml_server']}. \nREASON:  NO NETWORK CONNECTIVITY\n"
+                )
+                input(message1)
             else:
                 print("Something went wrong\n")
                 print(validate_return)
                 input(message1)
         else:
-            print("Something went wrong\n")
+            print("Something went wrong2\n")
             print(validate_return)
             input(message1)
 
@@ -515,10 +528,7 @@ def setup(init_console_server_session_file, sessions_dir, CONFIG_YAML, securecrt
                 "The script will attempt to use SecureCRT to connect to the\n"
                 "CML console server via SSH using the provided credentials.\n\n"
             )
-            print(
-                "You will need to enter your CML password and leave the\n"
-                "Save password' box checked. YOU WILL HAVE 60 SECONDS.\n\n"
-            )
+            print("You will need to enter your CML password and leave the\n\n")
             print(
                 "This will create a template file with your encrypted credentials\n"
                 "which will be used to generate session files for use with SecureCRT.\n\n"
@@ -542,7 +552,7 @@ def setup(init_console_server_session_file, sessions_dir, CONFIG_YAML, securecrt
 
             # Executing SecureCRT
             try:
-                subprocess.run(cmd, timeout=60, check=True)
+                subprocess.run(cmd, check=True)
             except FileNotFoundError as exc:
                 print(
                     f"Process failed because the executable could not be found.\n{exc}"
