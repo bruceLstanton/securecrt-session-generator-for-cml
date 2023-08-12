@@ -21,12 +21,12 @@ Each session file will be named to match its associated device/node name in the 
 
 ## Requirements
 
-- Windows 10 (possibly 11)
+- Windows 10 (possibly 11) or macOS 12 (possible 13)
 - Python 3
 - SecureCRT 8.7.2 or later
 - CML 2.2.2 or later
 
-## Installation
+## Installation - Windows
 - Internet connectivity required.
 - Recommend using **venv**.
 - The source directory (_securecrt-session-generator-for-cml_) can be placed anywhere. It can be renamed if desired.
@@ -50,7 +50,39 @@ Each session file will be named to match its associated device/node name in the 
 
         pip install -r requirements.txt
 
-## Usage
+- Deactivate the virtual environment:
+
+        deactivate
+
+
+## Installation - macOS
+- Internet connectivity required.
+- Recommend using **venv**.
+- The source directory (_securecrt-session-generator-for-cml_) can be placed anywhere. It can be renamed if desired.
+
+### Manual Method
+- Open a terminal.
+- Navigate to the source directory. 
+- Execute the following command to create the virtual environment:
+
+        python3 -m venv venv
+
+- Activate the virtual environment:
+
+        source venv/bin/activate
+
+- Install the necessary Python packages for the virtual environment:
+
+        pip3 install -r requirements.txt
+
+- Deactivate the virtual environment:
+
+        deactivate
+
+- Make the **session_gen.py** script executable:
+
+        chmod +x session_gen.py
+## Usage - Windows
 
 ### Scripted Method
 - Execute the **crt_session_generator.bat** from the source directory or via a shortcut to it.
@@ -63,10 +95,20 @@ Each session file will be named to match its associated device/node name in the 
         .\venv\Scripts\python.exe session_gen.py
 
 - Follow the prompts in the terminal
+## Usage - macOS
 
-### Notes
+### Manual Method
+- Open a terminal.
+- Navigate to the source directory. Execute the following command:
+
+        ./venv/bin/python3 session_gen.py
+
+- Follow the prompts in the terminal
+
+### Notes & Disclaimers
 - Neither I nor this project is associated with Cisco Systems, Inc. or VanDyke Software in any way.
-- Credentials and CML IP/hostname are stored in cleartext in config.yaml. This was orignally meant to mimic how the Breakout Tool operates.
+- **I am not a "mac guy".** Cross-compatibility development was done on a macOS Monterey VM.
+- Credentials and CML IP/hostname are stored in **cleartext** in config.yaml. This was orignally meant to mimic how the Breakout Tool operates.
 - Deleting **config.yaml** will allow the user to re-enter CML credentials and host information the next time the script is executed.
 - The password stored in the session files are encrypted by SecureCRT if setup was follwed as instructed.
 - This tool only needs to be run to generate sessions for existing labs, new labs, changes (additions, removals, renamings) to devices in existing labs for which sessions have already been created, or if a lab has been renamed that has had sessions generated.
