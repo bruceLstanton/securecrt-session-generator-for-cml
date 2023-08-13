@@ -50,7 +50,7 @@ Each session file will be named to match its associated device/node name in the 
 ## Installation - Windows
 - Internet connectivity required
 - Recommend using **venv**
-- The source directory (_securecrt-session-generator-for-cml_) can be placed anywhere. It can be renamed if desired
+- The source directory can be placed anywhere. It can be renamed if desired
 
 ### Scripted Method
 - Execute **install.bat** from within the source directory
@@ -83,7 +83,7 @@ Each session file will be named to match its associated device/node name in the 
 ## Installation - macOS
 - Internet connectivity required
 - Recommend using **venv**
-- The source directory (_securecrt-session-generator-for-cml_) can be placed anywhere. It can be renamed if desired
+- The source directory can be placed anywhere. It can be renamed if desired
 
 ### Manual Method
 - Open a terminal
