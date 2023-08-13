@@ -36,19 +36,23 @@ Each session file will be named to match its associated device/node name in the 
 - **install.bat** will instantiate a virtual environment within the source directory and download/install all necessary Python packages within the environment.
 
 ### Manual Method
-- Open a command prompt/PowerShell session.
+- Open a terminal.
 - Navigate to the source directory. 
 - Execute the following command to create the virtual environment:
 
-        python -m venv venv
+        python3 -m venv venv
 
 - Activate the virtual environment:
 
-        .\venv\Scripts\activate.bat
+        source venv/bin/activate
 
 - Install the necessary Python packages for the virtual environment:
 
-        pip install -r requirements.txt
+        pip3 install -r requirements.txt
+
+- Deactivate the virtual environment:
+
+        deactivate
 
 ## Usage
 
