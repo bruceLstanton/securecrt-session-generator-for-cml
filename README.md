@@ -5,8 +5,6 @@
 
 ## Introduction
 
-The method of console access to lab devices baked into CML is less than ideal for fast, efficient navigation between device consoles.
-
 The purpose of this project is to make console access to devices in CML more convenient by allowing users to automate the creation of SecureCRT session files. It leverages CML's built-in `console server` (not the breakout tool).
 
 Each session file will be named to match its associated device/node name in the lab and will display that name in the tab in SecureCRT when the session is used.
