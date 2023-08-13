@@ -297,22 +297,32 @@ def config_yaml_check(CONFIG_YAML):
 
 def set_config_variables():
     # Read config.yaml and assign field values to variables
-    with open("config.yaml") as f:
-        data = yaml.load(f, Loader=yaml.FullLoader)
-        config = list(data.keys())
-        cml_user_index = config.index("username")
-        cml_pass_index = config.index("password")
-        cml_server_index = config.index("controller")
-        cml_user = data[config[cml_user_index]]
-        cml_pass = data[config[cml_pass_index]]
-        cml_server = data[config[cml_server_index]]
+    try:
+        with open("config.yaml") as f:
+            data = yaml.load(f, Loader=yaml.FullLoader)
+            config = list(data.keys())
+            cml_user_index = config.index("username")
+            cml_pass_index = config.index("password")
+            cml_server_index = config.index("controller")
+            cml_user = data[config[cml_user_index]]
+            cml_pass = data[config[cml_pass_index]]
+            cml_server = data[config[cml_server_index]]
 
-        cml_configs = dict()
-        cml_configs["cml_user"] = cml_user
-        cml_configs["cml_pass"] = cml_pass
-        cml_configs["cml_server"] = cml_server
+            cml_configs = dict()
+            cml_configs["cml_user"] = cml_user
+            cml_configs["cml_pass"] = cml_pass
+            cml_configs["cml_server"] = cml_server
 
-        return cml_configs
+            return cml_configs
+    except FileNotFoundError:
+        print(f"Error:  {CONFIG_YAML} file not found.")
+        return None
+    except (IndexError, KeyError):
+        print(f"Error:  Invalid or missing fields in {CONFIG_YAML}.")
+        return None
+    except Exception as err:
+        print(f"An error occurred: {err}")
+        return None
 
 
 ## CREATE DIRECTORY FOR LAB SESSIONS ###########################################
@@ -327,10 +337,12 @@ def create_lab_session_dir(sessions_cml_labs_dir, lab_title):
         print(f"Directory for lab '{lab_title}' created successfully")
         print("=" * 79)
         return node_session_dir
-    except OSError as error:
-        print(f"Directory for lab '{lab_title}' can not be created")
-        print("Exiting")
+    except OSError:
+        print(f"Directory for lab '{lab_title}' could not be created")
         sys.exit(1)
+    except Exception as err:
+        print(f"An error occurred: {err}")
+        return None
 
 
 ## GENERATE NODE SESSIONS ######################################################
@@ -528,7 +540,10 @@ def setup(init_console_server_session_file, sessions_dir, CONFIG_YAML, securecrt
                 "The script will attempt to use SecureCRT to connect to the\n"
                 "CML console server via SSH using the provided credentials.\n\n"
             )
-            print("You will need to enter your CML password and leave the\n\n")
+            print(
+                "You will need to enter your CML password and leave the\n"
+                "SAVE PASSWORD checkbox checked.\n\n"
+            )
             print(
                 "This will create a template file with your encrypted credentials\n"
                 "which will be used to generate session files for use with SecureCRT.\n\n"
@@ -589,8 +604,9 @@ def setup(init_console_server_session_file, sessions_dir, CONFIG_YAML, securecrt
             print("=" * 79)
             return sessions_cml_labs_dir
         except OSError as error:
-            print(f"Directory '{cml_server_dir}' could not be created")
-            print("Exiting")
+            input(
+                f"Directory '{cml_server_dir}' could not be created.\nPress ENTER to exit..."
+            )
             sys.exit(1)
 
     def create_node_session_template_file():
@@ -626,15 +642,21 @@ def setup(init_console_server_session_file, sessions_dir, CONFIG_YAML, securecrt
             os.remove(console_session_template_location)
             os.system(clear_screen)
         else:
-            print(f"{console_session_template_location} does not exist")
-            print("Exiting")
+            input(
+                f"{console_session_template_location} does not exist\nPress ENTER to exit..."
+            )
             sys.exit(1)
 
     create_config_yaml()
 
     cml_configs = set_config_variables()
-    cml_user = cml_configs["cml_user"]
-    cml_server = cml_configs["cml_server"]
+
+    if cml_configs is not None:
+        cml_user = cml_configs["cml_user"]
+        cml_server = cml_configs["cml_server"]
+    else:
+        input("Press ENTER to exit...")
+        sys.exit(1)
 
     time.sleep(1)
 
@@ -665,14 +687,19 @@ def main():
             config_yaml_exists = config_yaml_check(CONFIG_YAML)
             if config_yaml_exists:
                 cml_configs = set_config_variables()
-                cml_user = cml_configs["cml_user"]
-                cml_pass = cml_configs["cml_pass"]
-                cml_server = cml_configs["cml_server"]
+                if cml_configs is not None:
+                    cml_user = cml_configs["cml_user"]
+                    cml_pass = cml_configs["cml_pass"]
+                    cml_server = cml_configs["cml_server"]
 
-                sessions_cml_labs_dir_name = "CML " + cml_server + " Labs"
-                sessions_cml_labs_dir = os.path.join(
-                    sessions_dir, sessions_cml_labs_dir_name
-                )
+                    sessions_cml_labs_dir_name = "CML " + cml_server + " Labs"
+                    sessions_cml_labs_dir = os.path.join(
+                        sessions_dir, sessions_cml_labs_dir_name
+                    )
+                else:
+                    input("Press ENTER to exit...")
+                    sys.exit(1)
+
                 if os.path.exists(sessions_cml_labs_dir) is False:
                     input(
                         f"The directory {sessions_cml_labs_dir} was not found.\nPress ENTER to begin setup..."
@@ -730,9 +757,7 @@ def main():
                 running = False
                 break
             else:
-                input(
-                    f"{CONFIG_YAML} was not found. \n\nPress ENTER to begin setup...\n"
-                )
+                input("Welcome!\n\nPress ENTER to begin setup...\n")
                 setup(
                     init_console_server_session_file,
                     sessions_dir,
