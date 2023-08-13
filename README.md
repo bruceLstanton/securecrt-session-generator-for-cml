@@ -2,10 +2,14 @@
 
 
 [![Python3.10](https://img.shields.io/static/v1?label=Python&logo=Python&color=3776AB&message=3.10)](https://www.python.org/)
+![Windows]( 	https://img.shields.io/badge/Windows-0078D6?style=for-the-badge&logo=windows&logoColor=white)
+![macOS](https://img.shields.io/badge/mac%20os-000000?style=for-the-badge&logo=apple&logoColor=white)
+
+
 
 ## Introduction
 
-The purpose of this project is to make console access to devices in CML more convenient by allowing users to automate the creation of SecureCRT session files. It leverages CML's built-in `console server` (not the breakout tool).
+The purpose of this project is to make console access to devices in CML more convenient by allowing users to automate the creation of SecureCRT session files. It leverages CML's built-in `console server` (not the Breakout Tool).
 
 Each session file will be named to match its associated device/node name in the lab and will display that name in the tab in SecureCRT when the session is used.
 
