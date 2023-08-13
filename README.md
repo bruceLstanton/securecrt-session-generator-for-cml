@@ -21,7 +21,7 @@ Each session file will be named to match its associated device/node name in the 
 
 ## Requirements
 
-- Windows 10 (possibly 11) or macOS 12 (possible 13)
+- Windows 10 (possibly 11) or macOS 12 (possibly 13)
 - Python 3
 - SecureCRT 8.7.2 or later
 - CML 2.2.2 or later
