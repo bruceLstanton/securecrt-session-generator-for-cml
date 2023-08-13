@@ -26,18 +26,37 @@ Each session file will be named to match its associated device/node name in the 
 - SecureCRT 8.7.2 or later
 - CML 2.2.2 or later
 
+## Downloading From GitHub
+### Git Clone Method (requires Git)
+- If Git is installed on your system, continue
+- Click the `Code` button at the top of the page
+- Copy the link
+- Open PowerShell/Command Prompt if Windows or Terminal if macOS
+- Navigate to the directory you would like to download this project to
+- Enter the following command:
+
+        git clone https://github.com/bruceLstanton/securecrt-session-generator-for-cml.git
+- The project should have downloaded to a directory with the name of this project
+- That directory will be the `source directory` referenced in the `Installation` and `Usage` sections below
+
+### ZIP Download Method
+- Click the `Code` button at the top of the page
+- Click `Download ZIP`
+- Extract the ZIP/archive to your desired directory location
+- That directory will be the `source directory` referenced in the `Installation` and `Usage` sections below
+
 ## Installation - Windows
-- Internet connectivity required.
-- Recommend using **venv**.
-- The source directory (_securecrt-session-generator-for-cml_) can be placed anywhere. It can be renamed if desired.
+- Internet connectivity required
+- Recommend using **venv**
+- The source directory (_securecrt-session-generator-for-cml_) can be placed anywhere. It can be renamed if desired
 
 ### Scripted Method
-- Execute **install.bat** from within the source directory.
-- **install.bat** will instantiate a virtual environment within the source directory and download/install all necessary Python packages within the environment.
+- Execute **install.bat** from within the source directory
+- **install.bat** will instantiate a virtual environment within the source directory and download/install all necessary Python packages within the environment
 
 ### Manual Method
-- Open a terminal.
-- Navigate to the source directory. 
+- Open a terminal
+- Navigate to the source directory
 - Execute the following command to create the virtual environment:
 
         python3 -m venv venv
@@ -60,13 +79,13 @@ Each session file will be named to match its associated device/node name in the 
 
 
 ## Installation - macOS
-- Internet connectivity required.
-- Recommend using **venv**.
-- The source directory (_securecrt-session-generator-for-cml_) can be placed anywhere. It can be renamed if desired.
+- Internet connectivity required
+- Recommend using **venv**
+- The source directory (_securecrt-session-generator-for-cml_) can be placed anywhere. It can be renamed if desired
 
 ### Manual Method
-- Open a terminal.
-- Navigate to the source directory. 
+- Open a terminal
+- Navigate to the source directory
 - Execute the following command to create the virtual environment:
 
         python3 -m venv venv
@@ -89,11 +108,11 @@ Each session file will be named to match its associated device/node name in the 
 ## Usage - Windows
 
 ### Scripted Method
-- Execute the **crt_session_generator.bat** from the source directory or via a shortcut to it.
-- Follow the prompts in the terminal.
+- Execute the **crt_session_generator.bat** from the source directory or via a shortcut to it
+- Follow the prompts in the terminal
 
 ### Manual Method
-- Open a command prompt/PowerShell session.
+- Open a command prompt/PowerShell session
 - Navigate to the source directory. Execute the following command:
 
         .\venv\Scripts\python.exe session_gen.py
@@ -102,7 +121,7 @@ Each session file will be named to match its associated device/node name in the 
 ## Usage - macOS
 
 ### Manual Method
-- Open a terminal.
+- Open a terminal
 - Navigate to the source directory. Execute the following command:
 
         ./venv/bin/python3 session_gen.py
