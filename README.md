@@ -75,11 +75,6 @@ Each session file will be named to match its associated device/node name in the 
 
         deactivate
 
-- Deactivate the virtual environment:
-
-        deactivate
-
-
 ## Installation - macOS
 - Internet connectivity required
 - Recommend using **venv**
