@@ -61,11 +61,11 @@ Each session file will be named to match its associated device/node name in the 
 - Navigate to the source directory
 - Execute the following command to create the virtual environment:
 
-        python3 -m venv venv
+        python -m venv venv
 
 - Activate the virtual environment:
 
-        source venv/bin/activate
+        ./venv/Scripts/activate
 
 - Install the necessary Python packages for the virtual environment:
 
