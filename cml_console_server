@@ -63,7 +63,7 @@ D:"[SSH2] Port"=00000016
 S:"Public Key Certificate Username"=
 S:"GSSAPI Delegation"=full
 D:"Keyboard Interactive Prompt Case Sensitive"=00000000
-S:"Key Exchange Algorithms"=gss-group1-sha1-toWM5Slw5Ew8Mqkay+al2g==,gss-gex-sha1-toWM5Slw5Ew8Mqkay+al2g==,diffie-hellman-group14-sha1,diffie-hellman-group-exchange-sha1,diffie-hellman-group1-sha1
+S:"Key Exchange Algorithms"=gss-group1-sha1-toWM5Slw5Ew8Mqkay+al2g==,gss-gex-sha1-toWM5Slw5Ew8Mqkay+al2g==,diffie-hellman-group14-sha1,diffie-hellman-group-exchange-sha1,diffie-hellman-group1-sha1,curve25519-sha256,ecdh-sha2-nistp521,ecdh-sha2-nistp384,ecdh-sha2-nistp256,diffie-hellman-group18-sha512,diffie-hellman-group16-sha512,diffie-hellman-group14-sha256,diffie-hellman-group-exchange-sha256
 D:"Compression Level"=00000005
 S:"Host Key Algorithms"=ecdsa-sha2-nistp256,ecdsa-sha2-nistp384,ecdsa-sha2-nistp521,ssh-ed25519,null,x509v3-sign-rsa,x509v3-ssh-rsa,x509v3-sign-dss,x509v3-ssh-dss,ssh-rsa,ssh-dss
 S:"Reverse Forward Filter"=allow,127.0.0.1,0 deny,0.0.0.0/0.0.0.0,0
