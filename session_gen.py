@@ -20,24 +20,44 @@ from requests.packages.urllib3.exceptions import InsecureRequestWarning
 
 def application_installed():
     if OS == "win32":
-        # SecureCRT may or may not be in system PATH
-        # This is how to find it regardless
+        # SecureCRT may or may not be in system PATH, and it can be installed
+        # either system-wide (Program Files) or per-user (AppData\Local).
+        # Build a list of candidate locations and use the first one that exists.
+        securecrt_file = "SecureCRT.exe"
+
+        candidate_base_dirs = []
+
+        # System-wide installs (32-bit and 64-bit Program Files)
         program_files_32bit = os.environ.get("ProgramFiles(x86)")
         program_files_64bit = os.environ.get("ProgramW6432")
-        securecrt_dir = "VanDyke Software\\SecureCRT\\"
-        securecrt_file = "SecureCRT.exe"
-        securecrt_path = os.path.join(
-            program_files_32bit, securecrt_dir, securecrt_file
-        )
-        if os.path.exists(securecrt_path) is False:
-            securecrt_path = os.path.join(
-                program_files_64bit, securecrt_dir, securecrt_file
-            )
-            if os.path.exists(securecrt_path) is False:
-                input(
-                    f"ERROR:   {securecrt_file} was not found.\nPress ENTER to exit..."
+        for program_files in (program_files_32bit, program_files_64bit):
+            if program_files:
+                candidate_base_dirs.append(
+                    os.path.join(program_files, "VanDyke Software", "SecureCRT")
                 )
-                sys.exit(1)
+
+        # Per-user installs (e.g. C:\Users\<user>\AppData\Local\VanDyke Software\...)
+        local_appdata = os.environ.get("LOCALAPPDATA")
+        if local_appdata:
+            candidate_base_dirs.append(
+                os.path.join(local_appdata, "VanDyke Software", "Clients")
+            )
+            candidate_base_dirs.append(
+                os.path.join(local_appdata, "VanDyke Software", "SecureCRT")
+            )
+
+        securecrt_path = None
+        for base_dir in candidate_base_dirs:
+            candidate_path = os.path.join(base_dir, securecrt_file)
+            if os.path.exists(candidate_path):
+                securecrt_path = candidate_path
+                break
+
+        if securecrt_path is None:
+            input(
+                f"ERROR:   {securecrt_file} was not found.\nPress ENTER to exit..."
+            )
+            sys.exit(1)
     elif OS == "darwin":
         securecrt_dir = "/Applications"
         securecrt_file = "SecureCRT.app"
