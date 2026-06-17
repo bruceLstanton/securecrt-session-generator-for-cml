@@ -53,12 +53,14 @@ Each session file will be named to match its associated device/node name in the 
 - The source directory can be placed anywhere. It can be renamed if desired
 
 ### Scripted Method
-- Execute **install.bat** from within the source directory
+- Open CMD or Terminal or PowerShell
+- Navigate to the source directory via the **cd** command
+- Execute **install.bat** from the terminal/PowerShell
 - **install.bat** will instantiate a virtual environment within the source directory and download/install all necessary Python packages within the environment
 
 ### Manual Method
-- Open a terminal
-- Navigate to the source directory
+- Open CMD or Terminal or PowerShell
+- Navigate to the source directory via the **cd** command
 - Execute the following command to create the virtual environment:
 
         python -m venv venv
